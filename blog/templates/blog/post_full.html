@@ -1,0 +1,42 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <article class="post">
+      <aside class="actions">
+          {% if user.is_authenticated %}
+            {% if user.id == post.author.id %}
+                <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}">
+                  {% include './icons/pencil-square.svg' %}
+                </a>
+            {% endif %}
+          {% endif %}
+      </aside>
+      <time class="date">
+          {{ post.published_date }}
+      </time>
+      <h2><a href="">{{ post.title }}</a></h2>
+      <p>{{ post.text|linebreaksbr }}</p>
+      <small>Post created by:</small>
+      <a href ="{% url 'users:profile' username=post.author %}">
+      {{ post.author}}
+      </a>
+    </article>
+    <hr>
+    {% for comment in post.comments.all %}
+    {% if user.is_authenticated or comment.approved_comment %}
+        <div class="comment">
+            <div class="date">
+                {{ comment.created_date }}
+                {% if not comment.approved_comment %}
+                    <a class="btn btn-default" href="{% url 'comment_remove' pk=comment.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
+                    <a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}"><span class="glyphicon glyphicon-ok"></span></a>
+                {% endif %}
+            </div>
+            <strong>{{ comment.author }}</strong>
+            <p>{{ comment.text|linebreaks }}</p>
+        </div>
+        {% endif %}
+    {% empty %}
+        <p>No comments here yet :(</p>
+    {% endfor %}
+    {% endblock %}
